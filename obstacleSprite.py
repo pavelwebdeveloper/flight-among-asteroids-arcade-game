@@ -6,7 +6,7 @@ class ObstacleSprite(arcade.Sprite):
     Obstacle sprites include obstacles
     """
 
-    def update(self):
+    def update(self, delta_time: float = 1/60):
         """Update the position of the sprite
         When it moves off screen to the bottom, remove it
         """

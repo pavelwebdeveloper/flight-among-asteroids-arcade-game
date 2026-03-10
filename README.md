@@ -4,7 +4,7 @@ Arcade Car Ride Game
 
 ## Instructions for Build and Use
 
-[Software Demo Video](https://youtu.be/r4Sk4XF9Xmk)
+[Software Demo Video]()
 
 Steps to build and/or run the software:
 
