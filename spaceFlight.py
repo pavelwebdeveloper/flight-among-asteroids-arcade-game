@@ -3,6 +3,7 @@ import arcade
 import random
 import math
 from asteroidSprite import AsteroidSprite
+from explosion import Explosion
 from constants import SCALING
 
 
@@ -40,7 +41,12 @@ class SpaceFlight(arcade.Window):
         """
 
         # Set the background color
-        arcade.set_background_color(arcade.color.BLACK)
+        #arcade.set_background_color(arcade.color.BLACK)
+        #self.background = arcade.load_texture("images/black.png")
+        self.background = arcade.Sprite("images/purple.png", SCALING * 2.5)
+        self.background.center_x = self.width // 2
+        self.background.center_y = self.height // 2
+        self.all_sprites.append(self.background)
 
         # Unpause the game
         self.paused = False
@@ -65,6 +71,11 @@ class SpaceFlight(arcade.Window):
         self.player.center_x = self.width // 2
         self.player.bottom = 80
         self.all_sprites.append(self.player)
+
+        self.explosion_textures = []
+        for i in range(1,3):
+            texture = arcade.load_texture(f"images/explosion/scorch_0{i}.png")
+            self.explosion_textures.append(texture)
 
 
     def add_flying_asteroid(self, delta_time: float):
@@ -98,8 +109,14 @@ class SpaceFlight(arcade.Window):
         
         # Checking if anything the space ship collided with any asteroid
         if self.player.collides_with_list(self.flying_asteroids) or self.player.collides_with_sprite(self.static_asteroid):
-            print("Colliding with planet!")
-            self.paused = not self.paused
+
+            explosion = Explosion(self.explosion_textures)
+            explosion.center_x = self.player.center_x
+            explosion.center_y = self.player.center_y
+
+            self.all_sprites.append(explosion)
+
+            self.paused = True
             arcade.unschedule(self.add_flying_asteroid)
             
 
@@ -124,6 +141,19 @@ class SpaceFlight(arcade.Window):
             Draw all game objects
         """
         self.clear()
+
+        """
+            arcade.draw_texture_rect(
+            self.background,
+            arcade.XYWH(
+                self.width // 2, 
+                self.height // 2,
+                self.width, 
+                self.height
+            ) 
+        )
+        """
+
         self.all_sprites.draw()
 
     def on_key_press(self, symbol, modifiers):
@@ -140,11 +170,7 @@ class SpaceFlight(arcade.Window):
 
         if symbol == arcade.key.P:
             # Quit immediately
-            self.paused = not self.paused
-
-        if symbol == arcade.key.P:
-            # Quit immediately
-            self.paused = not self.paused
+            self.paused = True
 
         if symbol == arcade.key.I or symbol == arcade.key.UP:
             self.player.change_y = 5  
