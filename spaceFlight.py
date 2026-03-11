@@ -1,7 +1,8 @@
 # Imports
 import arcade
 import random
-from obstacleSprite import ObstacleSprite
+import math
+from asteroidSprite import AsteroidSprite
 from constants import SCALING
 
 
@@ -17,7 +18,7 @@ class SpaceFlight(arcade.Window):
     """Space Flight Among Asteroids game
     Player starts on the center and moves along a road
     Player can move within the road, but not off road
-    Obstacles appear on the road at variable speed
+    Asteroids appear on the road at variable speed
     Collisions end the game
     """
 
@@ -27,7 +28,7 @@ class SpaceFlight(arcade.Window):
         super().__init__(width, height, title)
 
         # Set up the empty sprite lists
-        self.obstacles_list = arcade.SpriteList()
+        self.flying_asteroids = arcade.SpriteList()
         self.all_sprites = arcade.SpriteList()
 
         
@@ -41,18 +42,23 @@ class SpaceFlight(arcade.Window):
         # Set the background color
         arcade.set_background_color(arcade.color.BLACK)
 
-        # Spawn a new enemy every 0.25 seconds
-        arcade.schedule(self.add_obstacle, 0.25)
-
         # Unpause the game
         self.paused = False
 
+        # Spawn a new enemy every 0.25 seconds
+        arcade.schedule(self.add_flying_asteroid, 0.25)
+
         # Set up the planet
-        self.planet = arcade.Sprite("images/planet03.png", SCALING)
-        self.planet.center_x = self.width * 1.8
-        self.planet.bottom = -500
-        self.planet_rotation_speed = 0.2 # degrees per frame
-        self.all_sprites.append(self.planet)
+        #self.planet = arcade.Sprite("images/planet03.png", SCALING)
+        #self.planet.center_x = self.width * 1.8
+        #self.planet.bottom = -500
+        #self.planet_rotation_speed = 0.2 # degrees per frame
+        #self.all_sprites.append(self.planet)
+
+        self.static_asteroid = arcade.Sprite("images/meteorGrey_big4.png", SCALING/2)
+        self.static_asteroid.center_x = self.width // 2
+        self.static_asteroid.center_y = self.height // 2
+        self.all_sprites.append(self.static_asteroid)
 
         # Set up the player
         self.player = arcade.Sprite("images/playerShip1_green.png", SCALING/4)
@@ -61,26 +67,26 @@ class SpaceFlight(arcade.Window):
         self.all_sprites.append(self.player)
 
 
-    def add_obstacle(self, delta_time: float):
-        """Adds a new obstacle to the screen
+    def add_flying_asteroid(self, delta_time: float):
+        """Adds a new asteroid to the screen
 
         Arguments:
             delta_time {float} -- How much time has passed since the last call
         """
 
-        # First, create the new obstacle sprite
-        obstacle = ObstacleSprite("images/meteorGrey_tiny2.png", SCALING)
+        # First, create the new asteroid sprite
+        flying_asteroid = AsteroidSprite("images/meteorGrey_tiny2.png", SCALING)
 
         # Set its position to a random height and off screen right
-        obstacle.left = random.randint(10, self.width - 10)
-        obstacle.top = random.randint(self.height, self.height + 80)
+        flying_asteroid.left = random.randint(10, self.width - 10)
+        flying_asteroid.top = random.randint(self.height, self.height + 80)
 
         # Set its speed to a random speed heading left
-        obstacle.velocity = (0, random.randint(-20, -5))
+        flying_asteroid.velocity = (0, random.randint(-20, -5))
 
         # Add it to the enemies list
-        self.obstacles_list.append(obstacle)
-        self.all_sprites.append(obstacle)
+        self.flying_asteroids.append(flying_asteroid)
+        self.all_sprites.append(flying_asteroid)
 
     def on_update(self, delta_time: float):
         """
@@ -89,11 +95,18 @@ class SpaceFlight(arcade.Window):
 
         if self.paused:
             return
+        
+        # Checking if anything the space ship collided with any asteroid
+        if self.player.collides_with_list(self.flying_asteroids) or self.player.collides_with_sprite(self.static_asteroid):
+            print("Colliding with planet!")
+            self.paused = not self.paused
+            arcade.unschedule(self.add_flying_asteroid)
+            
 
         # Update everything
         self.all_sprites.update()
 
-        # Check if player is on the road
+        # Check if space ship is within the screen
         if self.player.top > self.height:
             self.player.top = self.height
         if self.player.right > self.width:
@@ -104,7 +117,7 @@ class SpaceFlight(arcade.Window):
             self.player.left = 0
 
         # Rotating the planet
-        self.planet.angle -= self.planet_rotation_speed
+        #self.planet.angle -= self.planet_rotation_speed
 
     def on_draw(self):
         """

@@ -1,9 +1,9 @@
 # Imports
 import arcade
 
-class ObstacleSprite(arcade.Sprite):
-    """Base class for all obstacle sprites
-    Obstacle sprites include obstacles
+class AsteroidSprite(arcade.Sprite):
+    """Base class for all asteroid sprites
+    Asteroid sprites include asteroidss
     """
 
     def update(self, delta_time: float = 1/60):
