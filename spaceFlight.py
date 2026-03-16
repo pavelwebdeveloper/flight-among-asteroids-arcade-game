@@ -51,6 +51,11 @@ class SpaceFlight(arcade.Window):
         # Spawn a new asteroid every 0.25 seconds
         arcade.schedule(self.add_flying_asteroid, 0.25)
 
+        # Setting up sounds
+        self.collision_sound = arcade.load_sound("sounds/Collision.wav");
+        self.move_up_sound = arcade.load_sound("sounds/Rising_putter.wav");
+        self.move_down_sound = arcade.load_sound("sounds/Falling_putter.wav");
+
         # Set up the planet
         self.planet = arcade.Sprite("images/planet03.png", SCALING*1.5)
         self.planet.center_x = self.width * 2.2
@@ -62,7 +67,7 @@ class SpaceFlight(arcade.Window):
         self.static_asteroid = arcade.Sprite("images/meteorGrey_big4.png", SCALING/2)
         self.static_asteroid.center_x = self.width // 2
         self.static_asteroid.center_y = self.height // 2
-        self.static_asteroid.change_angle = random.uniform(2,-2) # Add rotation to the stationary asteroid
+        self.static_asteroid.change_angle = random.uniform(5,-5) # Add rotation to the stationary asteroid
         self.all_sprites.append(self.static_asteroid)
 
         # Set up the player
@@ -119,6 +124,8 @@ class SpaceFlight(arcade.Window):
         # Checking if the space ship collided with any asteroid
         if self.player.collides_with_list(self.flying_asteroids) or self.player.collides_with_sprite(self.static_asteroid):
 
+            arcade.play_sound(self.collision_sound)
+
             explosion = Explosion(self.spacecraft_explosion_textures)
             explosion.center_x = self.player.center_x
             explosion.center_y = self.player.center_y
@@ -165,6 +172,9 @@ class SpaceFlight(arcade.Window):
         self.planet.angle -= self.planet_rotation_speed
 
     def _create_explosion_remove_small_asteroids(self, first_small_asteroid, second_small_asteroid = None):
+
+        arcade.play_sound(self.collision_sound)
+
         collision_x = first_small_asteroid.center_x
         collision_y = first_small_asteroid.center_y
 
@@ -202,12 +212,21 @@ class SpaceFlight(arcade.Window):
 
         if symbol == arcade.key.P:
             # Quit immediately
-            self.paused = True
+            if self.paused == False:
+                self.paused = True
+                # Stop spawning a new asteroid every 0.25 seconds
+                arcade.unschedule(self.add_flying_asteroid)
+            else:
+                # Resume spawning a new asteroid every 0.25 seconds
+                arcade.schedule(self.add_flying_asteroid, 0.25)
+                self.paused = False
 
         if symbol == arcade.key.I or symbol == arcade.key.UP:
+            arcade.play_sound(self.move_up_sound)
             self.player.change_y = 5  
 
         if symbol == arcade.key.K or symbol == arcade.key.DOWN:
+            arcade.play_sound(self.move_down_sound)
             self.player.change_y = -5  
 
         if symbol == arcade.key.J or symbol == arcade.key.LEFT:
