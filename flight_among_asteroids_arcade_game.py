@@ -8,12 +8,12 @@ from constants import SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_TITLE, SCALING
 
 
 if __name__ == "__main__":
-    # Create a new Space Flight window
-    car_ride_game = SpaceFlight(
+    # Create a new Space Flight game
+    spacecraft_flight_among_asteroids_game = SpaceFlight(
         int(SCREEN_WIDTH * SCALING), int(SCREEN_HEIGHT * SCALING), SCREEN_TITLE
     )
-    # Setu to play
-    car_ride_game.setup()
+    # Set up to play
+    spacecraft_flight_among_asteroids_game.setup()
 
     # Run the game
     arcade.run()

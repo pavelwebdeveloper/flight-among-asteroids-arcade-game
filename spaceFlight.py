@@ -1,7 +1,6 @@
 # Imports
 import arcade
 import random
-import math
 from asteroidSprite import AsteroidSprite
 from explosion import Explosion
 from constants import SCALING
@@ -40,30 +39,30 @@ class SpaceFlight(arcade.Window):
         """Get the game ready to play
         """
 
-        # Set the background color
-        #arcade.set_background_color(arcade.color.BLACK)
-        #self.background = arcade.load_texture("images/black.png")
+        # Set up the background image
         self.background = arcade.Sprite("images/purple.png", SCALING * 2.5)
         self.background.center_x = self.width // 2
         self.background.center_y = self.height // 2
         self.all_sprites.append(self.background)
 
-        # Unpause the game
+        # Set the game to unpaused status
         self.paused = False
 
-        # Spawn a new enemy every 0.25 seconds
+        # Spawn a new asteroid every 0.25 seconds
         arcade.schedule(self.add_flying_asteroid, 0.25)
 
         # Set up the planet
-        #self.planet = arcade.Sprite("images/planet03.png", SCALING)
-        #self.planet.center_x = self.width * 1.8
-        #self.planet.bottom = -500
-        #self.planet_rotation_speed = 0.2 # degrees per frame
-        #self.all_sprites.append(self.planet)
+        self.planet = arcade.Sprite("images/planet03.png", SCALING*1.5)
+        self.planet.center_x = self.width * 2.2
+        self.planet.bottom = -1300
+        self.planet_rotation_speed = 0.2 # Add rotation to the planet in degrees per frame
+        self.all_sprites.append(self.planet)
 
+        # Set up stationary asteroid
         self.static_asteroid = arcade.Sprite("images/meteorGrey_big4.png", SCALING/2)
         self.static_asteroid.center_x = self.width // 2
         self.static_asteroid.center_y = self.height // 2
+        self.static_asteroid.change_angle = random.uniform(2,-2) # Add rotation to the stationary asteroid
         self.all_sprites.append(self.static_asteroid)
 
         # Set up the player
@@ -72,10 +71,17 @@ class SpaceFlight(arcade.Window):
         self.player.bottom = 80
         self.all_sprites.append(self.player)
 
-        self.explosion_textures = []
+        # Set up explosion for spacecraft
+        self.spacecraft_explosion_textures = []
+        for i in range(1,9):
+            texture = arcade.load_texture(f"images/explosion/explosion0{i}.png")
+            self.spacecraft_explosion_textures.append(texture)
+
+        # Set up explosion between asteroids
+        self.asteroid_explosion_textures = []
         for i in range(1,3):
             texture = arcade.load_texture(f"images/explosion/scorch_0{i}.png")
-            self.explosion_textures.append(texture)
+            self.asteroid_explosion_textures.append(texture)
 
 
     def add_flying_asteroid(self, delta_time: float):
@@ -92,10 +98,13 @@ class SpaceFlight(arcade.Window):
         flying_asteroid.left = random.randint(10, self.width - 10)
         flying_asteroid.top = random.randint(self.height, self.height + 80)
 
-        # Set its speed to a random speed heading left
+        # Set its speed to a random speed
         flying_asteroid.velocity = (0, random.randint(-20, -5))
 
-        # Add it to the enemies list
+        # Add rotation to the flying asteroid
+        flying_asteroid.change_angle = random.uniform(-2,2)
+
+        # Add it to the list of flying asteroids
         self.flying_asteroids.append(flying_asteroid)
         self.all_sprites.append(flying_asteroid)
 
@@ -107,10 +116,10 @@ class SpaceFlight(arcade.Window):
         if self.paused:
             return
         
-        # Checking if anything the space ship collided with any asteroid
+        # Checking if the space ship collided with any asteroid
         if self.player.collides_with_list(self.flying_asteroids) or self.player.collides_with_sprite(self.static_asteroid):
 
-            explosion = Explosion(self.explosion_textures)
+            explosion = Explosion(self.spacecraft_explosion_textures)
             explosion.center_x = self.player.center_x
             explosion.center_y = self.player.center_y
 
@@ -118,7 +127,26 @@ class SpaceFlight(arcade.Window):
 
             self.paused = True
             arcade.unschedule(self.add_flying_asteroid)
+
+        # check for collisions between asteroids
+        for asteroid in list(self.flying_asteroids):
+            hit_list = arcade.check_for_collision_with_list(asteroid, self.flying_asteroids)
+
+            for other in hit_list:
+                if other is asteroid:
+                    continue # skip oneself
+
+                if asteroid.width == other.width:
+                    #print("2 small asteroids collided !!!!!!!")
+                    self._create_explosion_remove_small_asteroids(asteroid, other)
+
+                    break
             
+            if arcade.check_for_collision(asteroid, self.static_asteroid):
+                    #print("samall asteroid collided with the big one !!!!!!!")
+                    self._create_explosion_remove_small_asteroids(asteroid)
+
+                    break
 
         # Update everything
         self.all_sprites.update()
@@ -134,25 +162,29 @@ class SpaceFlight(arcade.Window):
             self.player.left = 0
 
         # Rotating the planet
-        #self.planet.angle -= self.planet_rotation_speed
+        self.planet.angle -= self.planet_rotation_speed
+
+    def _create_explosion_remove_small_asteroids(self, first_small_asteroid, second_small_asteroid = None):
+        collision_x = first_small_asteroid.center_x
+        collision_y = first_small_asteroid.center_y
+
+        explosion = Explosion(self.asteroid_explosion_textures)
+        explosion.center_x = collision_x
+        explosion.center_y = collision_y
+
+        self.all_sprites.append(explosion)
+
+        first_small_asteroid.remove_from_sprite_lists()
+        if second_small_asteroid is not None:
+            second_small_asteroid.remove_from_sprite_lists()
+
+        
 
     def on_draw(self):
         """
             Draw all game objects
         """
         self.clear()
-
-        """
-            arcade.draw_texture_rect(
-            self.background,
-            arcade.XYWH(
-                self.width // 2, 
-                self.height // 2,
-                self.width, 
-                self.height
-            ) 
-        )
-        """
 
         self.all_sprites.draw()
 
