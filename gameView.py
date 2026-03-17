@@ -4,10 +4,12 @@ import random
 from asteroidSprite import AsteroidSprite
 from explosion import Explosion
 from constants import SCALING
+from gameOverView import GameOverView
 
 
 
-class SpaceFlight(arcade.Window):
+#class SpaceFlight(arcade.Window):
+class GameView(arcade.View):
     """Space Shooter side scroller game
     Player starts on the left, enemies appear on the right
     Player can move anywhere, but not off screen
@@ -22,14 +24,14 @@ class SpaceFlight(arcade.Window):
     Collisions end the game
     """
 
-    def __init__(self, width, height, title):
-        """Initialize the game
-        """
-        super().__init__(width, height, title)
+    #def __init__(self, width, height, title):
+    """Initialize the game
+    """
+        #super().__init__(width, height, title)
 
         # Set up the empty sprite lists
-        self.flying_asteroids = arcade.SpriteList()
-        self.all_sprites = arcade.SpriteList()
+        #self.flying_asteroids = arcade.SpriteList()
+        #self.all_sprites = arcade.SpriteList()
 
         
 
@@ -38,6 +40,9 @@ class SpaceFlight(arcade.Window):
     def setup(self):
         """Get the game ready to play
         """
+
+        self.flying_asteroids = arcade.SpriteList()
+        self.all_sprites = arcade.SpriteList()
 
         # Set up the background image
         self.background = arcade.Sprite("images/purple.png", SCALING * 2.5)
@@ -67,7 +72,7 @@ class SpaceFlight(arcade.Window):
         self.static_asteroid = arcade.Sprite("images/meteorGrey_big4.png", SCALING/2)
         self.static_asteroid.center_x = self.width // 2
         self.static_asteroid.center_y = self.height // 2
-        self.static_asteroid.change_angle = random.uniform(5,-5) # Add rotation to the stationary asteroid
+        #self.static_asteroid.change_angle = random.uniform(5,-5) # Add rotation to the stationary asteroid
         self.all_sprites.append(self.static_asteroid)
 
         # Set up the player
@@ -135,6 +140,8 @@ class SpaceFlight(arcade.Window):
             self.paused = True
             arcade.unschedule(self.add_flying_asteroid)
 
+            arcade.schedule_once(self._show_game_over, 1.5)
+
         # check for collisions between asteroids
         for asteroid in list(self.flying_asteroids):
             hit_list = arcade.check_for_collision_with_list(asteroid, self.flying_asteroids)
@@ -170,6 +177,11 @@ class SpaceFlight(arcade.Window):
 
         # Rotating the planet
         self.planet.angle -= self.planet_rotation_speed
+
+    def _show_game_over(self, delta_time):
+        game_over = GameOverView()
+        self.window.show_view(game_over)
+
 
     def _create_explosion_remove_small_asteroids(self, first_small_asteroid, second_small_asteroid = None):
 
