@@ -46,5 +46,4 @@ I found these websites useful in developing this software:
 
 The following items I plan to fix, improve, and/or add to this project in the future:
 
-* [ ] To add the ability to shoot at the asteroids in order to destroy them before the collide with the spacecraft
-* [ ] 
+* [ ] To add the ability to shoot at the asteroids in order to destroy them before they collide with the spacecraft
