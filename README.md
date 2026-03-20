@@ -4,7 +4,7 @@ Arcade Spacecraft Flight Among Asteroids Game
 
 ## Instructions for Build and Use
 
-[Software Demo Video]()
+[Software Demo Video](https://youtu.be/c7eVQh3nQ0g)
 
 Steps to build and/or run the software:
 

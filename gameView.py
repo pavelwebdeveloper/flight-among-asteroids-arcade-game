@@ -45,7 +45,7 @@ class GameView(arcade.View):
         self.static_asteroid = arcade.Sprite("images/meteorGrey_big4.png", SCALING/2)
         self.static_asteroid.center_x = self.width // 2
         self.static_asteroid.center_y = self.height // 2
-        #self.static_asteroid.change_angle = random.uniform(5,-5) # Add rotation to the stationary asteroid
+        self.static_asteroid.change_angle = random.uniform(5,-5) # Add rotation to the stationary asteroid
         self.all_sprites.append(self.static_asteroid)
 
         # Set up the player
