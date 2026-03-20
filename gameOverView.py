@@ -3,6 +3,7 @@ import arcade
 class GameOverView(arcade.View):
 
     def on_show_view(self):
+        # adding an image to the background for the game over view
         self.background = arcade.load_texture("images/Background-2.png")
 
     def on_draw(self):
@@ -18,6 +19,7 @@ class GameOverView(arcade.View):
             )
         )
 
+        # adding text to the game over view
         arcade.draw_text(
             "Game Over",
             self.window.width / 2,
@@ -27,6 +29,7 @@ class GameOverView(arcade.View):
             anchor_x="center"
         )
 
+        # adding another line of text to the game over view
         arcade.draw_text(
             "Press ENTER to return to Menu or Q to quit the game",
             self.window.width / 2,
@@ -38,6 +41,7 @@ class GameOverView(arcade.View):
 
     def on_key_press(self, symbol, modifiers):
 
+        # if a user presses "Enter" key then the menu view is opened
         if symbol == arcade.key.ENTER:
             from menuView import MenuView
 

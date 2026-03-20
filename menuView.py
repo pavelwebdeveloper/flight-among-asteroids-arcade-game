@@ -5,8 +5,7 @@ from constants import SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_TITLE, SCALING
 class MenuView(arcade.View):
 
     def on_show_view(self):
-        #arcade.set_background_color(arcade.color.BLACK)
-
+        # adding an image to the background for the menu view
         self.background = arcade.load_texture("images/Background-3.png")
 
     def on_draw(self):
@@ -22,6 +21,7 @@ class MenuView(arcade.View):
             )
         )
 
+        # adding text to the menu view
         arcade.draw_text(
             "Flight Among Asteroids",
             self.window.width / 2,
@@ -31,6 +31,7 @@ class MenuView(arcade.View):
             anchor_x="center"
         )
 
+        # adding another line of text to the menu view
         arcade.draw_text(
             "Press ENTER to start or Q to exit",
             self.window.width / 2,
@@ -42,14 +43,13 @@ class MenuView(arcade.View):
 
     def on_key_press(self, symbol, modifiers):
 
+        # if a user presses "Enter" key then the game view is opened and the game begins 
         if symbol == arcade.key.ENTER:
-            #game_view = SpaceFlight(
-                #int(SCREEN_WIDTH * SCALING), int(SCREEN_HEIGHT * SCALING), SCREEN_TITLE
-            #)
             game_view = GameView()
             game_view.setup()
             self.window.show_view(game_view)
 
+        # if a user presses "Q" key then the game finishes
         if symbol == arcade.key.Q:
             # Quit immediately
             arcade.close_window()

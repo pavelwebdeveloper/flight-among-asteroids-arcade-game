@@ -3,7 +3,7 @@ import arcade
 
 class AsteroidSprite(arcade.Sprite):
     """Base class for all asteroid sprites
-    Asteroid sprites include asteroidss
+    Asteroid sprites include asteroids
     """
 
     def update(self, delta_time: float = 1/60):

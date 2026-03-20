@@ -6,41 +6,14 @@ from explosion import Explosion
 from constants import SCALING
 from gameOverView import GameOverView
 
-
-
 #class SpaceFlight(arcade.Window):
 class GameView(arcade.View):
-    """Space Shooter side scroller game
-    Player starts on the left, enemies appear on the right
-    Player can move anywhere, but not off screen
-    Enemies fly to the left at variable speed
-    Collisions end the game
-    """
-
-    """Space Flight Among Asteroids game
-    Player starts on the center and moves along a road
-    Player can move within the road, but not off road
-    Asteroids appear on the road at variable speed
-    Collisions end the game
-    """
-
-    #def __init__(self, width, height, title):
-    """Initialize the game
-    """
-        #super().__init__(width, height, title)
-
-        # Set up the empty sprite lists
-        #self.flying_asteroids = arcade.SpriteList()
-        #self.all_sprites = arcade.SpriteList()
-
-        
-
-
 
     def setup(self):
         """Get the game ready to play
         """
 
+        # Set up the empty sprite lists
         self.flying_asteroids = arcade.SpriteList()
         self.all_sprites = arcade.SpriteList()
 
@@ -129,15 +102,21 @@ class GameView(arcade.View):
         # Checking if the space ship collided with any asteroid
         if self.player.collides_with_list(self.flying_asteroids) or self.player.collides_with_sprite(self.static_asteroid):
 
+            # playing collision sound
             arcade.play_sound(self.collision_sound)
 
+            # creating explosion
             explosion = Explosion(self.spacecraft_explosion_textures)
             explosion.center_x = self.player.center_x
             explosion.center_y = self.player.center_y
 
+            # adding the explosion to the game view
             self.all_sprites.append(explosion)
 
+            # pausing the game
             self.paused = True
+
+            # stopping to generate flying asteroids
             arcade.unschedule(self.add_flying_asteroid)
 
             arcade.schedule_once(self._show_game_over, 1.5)
@@ -150,22 +129,24 @@ class GameView(arcade.View):
                 if other is asteroid:
                     continue # skip oneself
 
+                # check for collision between small asteroids
                 if asteroid.width == other.width:
-                    #print("2 small asteroids collided !!!!!!!")
                     self._create_explosion_remove_small_asteroids(asteroid, other)
-
+                    
+                    # exiting the inner for loop
                     break
             
+            # check for collision between small asteroids and the big asteroid
             if arcade.check_for_collision(asteroid, self.static_asteroid):
-                    #print("samall asteroid collided with the big one !!!!!!!")
                     self._create_explosion_remove_small_asteroids(asteroid)
 
+                    # exiting the outer for loop
                     break
 
         # Update everything
         self.all_sprites.update()
 
-        # Check if space ship is within the screen
+        # Check if spacecraft is within the view and returning it into the view if it is outside
         if self.player.top > self.height:
             self.player.top = self.height
         if self.player.right > self.width:
@@ -178,11 +159,12 @@ class GameView(arcade.View):
         # Rotating the planet
         self.planet.angle -= self.planet_rotation_speed
 
+    # function to display the game over view
     def _show_game_over(self, delta_time):
         game_over = GameOverView()
         self.window.show_view(game_over)
 
-
+    # function to create explosion when small asteroids collide and removing them from the view
     def _create_explosion_remove_small_asteroids(self, first_small_asteroid, second_small_asteroid = None):
 
         arcade.play_sound(self.collision_sound)
@@ -200,8 +182,6 @@ class GameView(arcade.View):
         if second_small_asteroid is not None:
             second_small_asteroid.remove_from_sprite_lists()
 
-        
-
     def on_draw(self):
         """
             Draw all game objects
@@ -209,6 +189,7 @@ class GameView(arcade.View):
         self.clear()
 
         self.all_sprites.draw()
+
 
     def on_key_press(self, symbol, modifiers):
         """
@@ -223,7 +204,7 @@ class GameView(arcade.View):
             arcade.close_window()
 
         if symbol == arcade.key.P:
-            # Quit immediately
+            # Pause the game
             if self.paused == False:
                 self.paused = True
                 # Stop spawning a new asteroid every 0.25 seconds
@@ -233,17 +214,21 @@ class GameView(arcade.View):
                 arcade.schedule(self.add_flying_asteroid, 0.25)
                 self.paused = False
 
+        # moving the aircraft forward 
         if symbol == arcade.key.I or symbol == arcade.key.UP:
             arcade.play_sound(self.move_up_sound)
             self.player.change_y = 5  
 
+        # moving the aircraft backward
         if symbol == arcade.key.K or symbol == arcade.key.DOWN:
             arcade.play_sound(self.move_down_sound)
             self.player.change_y = -5  
 
+        # moving the aircraft left
         if symbol == arcade.key.J or symbol == arcade.key.LEFT:
             self.player.change_x = -5  
 
+        # moving the aircraft right
         if symbol == arcade.key.L or symbol == arcade.key.RIGHT:
             self.player.change_x = 5 
     
